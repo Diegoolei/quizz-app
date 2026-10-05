@@ -11,6 +11,7 @@
 | Rule | Detail |
 |---|---|
 | Stack | `pytest` + `pytest-django` + DRF `APIClient` |
+| Domain apps | `users`, `quizzes`, `attempts`, `outbox` (models/services/helpers); HTTP under `api` |
 | Error asserts | Envelope from [06-api-conventions.md](06-api-conventions.md): `error.code`, `error.message`, `details` |
 | Rate limit in domain tests | Raise or disable limit via settings so business tests do not trip 429 |
 | Rate limit tests | Use a low override to force 429 quickly |

@@ -4,6 +4,19 @@
 
 Canonical entities and invariants for MVP persistence. Field types may map to Django equivalents; names below are normative for specs and serializers.
 
+## App ownership
+
+Unrelated bounded contexts live in **separate Django apps**. Closely related tables stay in the same app. Each app owns its `models`, `services/`, and `helpers/` (HTTP may aggregate under `api`).
+
+| App | Models | Owns |
+|---|---|---|
+| `users` | `User` | user CRUD services/helpers |
+| `quizzes` | `Quiz`, `Question`, `Option` | quiz authoring, public quiz reads, seed |
+| `attempts` | `Attempt`, `AttemptAnswer` | start/submit/results, scoring, progress aggregates |
+| `outbox` | `OutboxEvent` | transactional outbox write helpers, worker/process |
+
+`api` remains the HTTP surface (urls/views/serializers) and shared test package; it must not redefine domain models.
+
 ## Entities
 
 ### User

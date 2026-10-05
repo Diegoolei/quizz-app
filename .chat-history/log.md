@@ -49,3 +49,8 @@ Append-only record of agent prompt/response exchanges.
 - user_prompt: "I want you to write some tests for me to try in the console, with curl, no jq. I want to test the complete flow in the happy path. Make sure to give me the commands to create the users, quizes, responses, etc."
 - assistant_response_summary: "Provided spec-based curl happy-path script (create user → create quiz → list/get quiz → start attempt → submit answers → get results → progress/stats). Noted HTTP views/urls are not implemented yet so commands will 404 until API layer lands; no jq, manual ID paste or python3 json extraction."
 - files_affected: "none"
+---
+- timestamp: "2026-10-05T01:15:00Z"
+- user_prompt: "I prefer that each non related model has its own app, because then they will have their own services and helpers."
+- assistant_response_summary: "Split domain into users/quizzes/attempts/outbox apps with models + services/helpers packages; cleared api models; updated INSTALLED_APPS, factories, tests, 01-data-model ownership table; remigrated DB; test_data_model 3 passed."
+- files_affected: ".cursor/specs/01-data-model.md, .cursor/specs/08-test-catalog.md, config/settings/base.py, api/models.py, users/**, quizzes/**, attempts/**, outbox/**, api/tests/**"
