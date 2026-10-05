@@ -199,10 +199,13 @@ Required for **every** `/api/` endpoint. Not a single fixed `assertNumQueries(N)
 | `D-OUT-send-fail` | `test_outbox.py` | Send failure does not un-complete attempt |
 | `D-WRK-transitions` | `test_outbox_worker.py` | pending→sent / failed→retry / exceeded_retries at 5 |
 | `D-WRK-mock-cadence` | `test_outbox_worker.py` | Odd sends fail, even succeed (1-based) |
+| `D-WRK-log-sent` | `test_outbox_worker.py` | Structured `email_sent` log on successful send |
+| `D-WRK-log-fail` | `test_outbox_worker.py` | Warning/error logs on fail / exceeded_retries |
 | `D-MODEL-correct` | `test_data_model.py` | Exactly one `is_correct` per question |
 | `D-MODEL-keys` | `test_data_model.py` | `attempt_key` unique; outbox `uniqueness_key` unique |
 | `D-SEED` | `test_seed_data.py` | ≥2 quizzes, ≥5 questions each; idempotent re-run |
 | `D-ENV` | `test_api_conventions.py` | Envelope on sample 404/422 |
+| `D-ENV-EMPTY-PATH` | `test_api_conventions.py` | `GET /api/quizzes//` → 404 JSON `not_found` (not HTML) |
 | `D-OAS` | `test_openapi.py` | Schema loads; all `/api/` paths; every path documents 429 |
 
 ---

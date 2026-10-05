@@ -133,7 +133,7 @@ def make_outbox_for_attempt(attempt, *, status: str = "pending", **kwargs: Any):
     return OutboxEvent.objects.create(**defaults)
 
 
-def quiz_create_payload(*, question_count: int = 5) -> dict:
+def quiz_create_payload(question_count: int = 5) -> dict:
     """Authoring body for POST /api/quizzes/."""
     questions = []
     for i in range(1, question_count + 1):

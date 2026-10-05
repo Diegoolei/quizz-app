@@ -1,6 +1,7 @@
 """Shared fixtures for Quiz App API tests (catalog 08)."""
 
 import pytest
+from django.core.cache import cache
 from rest_framework.test import APIClient
 
 
@@ -15,6 +16,7 @@ def _high_rate_limit_for_domain_tests(settings):
 
     Spec: 06-api-conventions / 08-test-catalog — raise or disable for business tests.
     """
+    cache.clear()
     settings.API_RATE_LIMIT_PER_MINUTE = 10_000
     settings.API_RATE_LIMIT_WINDOW_SECONDS = 60
 
@@ -22,5 +24,6 @@ def _high_rate_limit_for_domain_tests(settings):
 @pytest.fixture
 def low_rate_limit(settings):
     """Use in rate-limit tests to force 429 quickly."""
+    cache.clear()
     settings.API_RATE_LIMIT_PER_MINUTE = 3
     settings.API_RATE_LIMIT_WINDOW_SECONDS = 60

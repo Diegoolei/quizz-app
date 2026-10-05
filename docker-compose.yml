@@ -30,5 +30,29 @@ services:
       db:
         condition: service_healthy
 
+  outbox-worker:
+    build: .
+    # Bypass web entrypoint (migrate/collectstatic); worker only drains outbox.
+    entrypoint: []
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          python manage.py process_outbox
+          sleep 5
+        done
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    volumes:
+      - .:/app
+      - /app/.venv
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   postgres_data:

@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "users",
     "quizzes",
     "attempts",
@@ -41,7 +42,36 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "api.middleware.rate_limit.ApiRateLimitMiddleware",
+    "api.middleware.json_404.ApiJson404Middleware",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "UNAUTHENTICATED_USER": None,
+    "EXCEPTION_HANDLER": "api.exceptions.exception_handler",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Quiz App API",
+    "DESCRIPTION": "MVP quiz API — see .cursor/specs/http/",
+    "VERSION": "1.0.0",
+}
+
+# IP rate limit for /api/ (06-api-conventions). Override in tests via settings fixture.
+API_RATE_LIMIT_PER_MINUTE = env.int("API_RATE_LIMIT_PER_MINUTE", default=60)
+API_RATE_LIMIT_WINDOW_SECONDS = env.int("API_RATE_LIMIT_WINDOW_SECONDS", default=60)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "quizz-api-rate-limit",
+    }
+}
 
 ROOT_URLCONF = "config.urls"
 

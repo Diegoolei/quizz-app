@@ -67,6 +67,7 @@ Retrieve quiz for taking (answer-key isolated).
 | Status | code | When |
 |---|---|---|
 | 404 | `quiz_not_found` | Unknown id |
+| 404 | `not_found` | Empty/missing id segment (e.g. `/api/quizzes//`) — unmatched route; see [06-api-conventions.md](../06-api-conventions.md) |
 | 429 | `rate_limit_exceeded` | IP exceeded 60 requests / 60s |
 
 ### Auth

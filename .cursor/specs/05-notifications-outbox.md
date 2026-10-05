@@ -58,8 +58,23 @@ Clarify processing:
 ## Worker
 
 - Invoked every **5 seconds** via docker-compose (sidecar or cron service running a management command, e.g. `process_outbox`).
+- Compose `outbox-worker` must **not** use the web `entrypoint.sh` (no migrate/collectstatic); override `entrypoint` and loop `process_outbox` + sleep 5; depend on healthy `db`.
 - Process a bounded batch per tick (implementation choice; document default batch size in code, e.g. 50).
 - Must be safe if overlapping ticks occur (row-level lock / `SELECT FOR UPDATE SKIP LOCKED` or equivalent).
+
+## Operator logging
+
+On successful mock send, emit a structured log (event name equivalent to **email sent** / `email_sent`) including when present:
+
+| Field | Source |
+|---|---|
+| `attempt_id` | payload |
+| `uniqueness_key` | OutboxEvent |
+| `user_email` | payload |
+| `quiz_title` | payload |
+| `score` | payload `score_percent` (omit if absent) |
+
+On send failure / retry: log at warning (include `retries`, `last_error`, resulting `status`). On `exceeded_retries`: log at error.
 
 ## Mock email failure policy
 
@@ -82,5 +97,5 @@ Notification status is **queryable** on completed attempt GET (`notification_sta
 Catalog: `D-OUT-*`, `D-WRK-*` in [08-test-catalog.md](08-test-catalog.md).
 
 - `api/tests/test_outbox.py` — uniqueness_key; same-txn with submit; send failure does not uncomplete attempt
-- `api/tests/test_outbox_worker.py` — status transitions; max retries → `exceeded_retries`; mock fail every other send
+- `api/tests/test_outbox_worker.py` — status transitions; max retries → `exceeded_retries`; mock fail every other send; structured `email_sent` / failure logs
 - HTTP/docs: [http/outbox.md](http/outbox.md)

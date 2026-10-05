@@ -25,7 +25,7 @@ def test_list_attempts_includes_retakes_and_null_score(api_client):
     body = response.json()
     assert len(body) == 2
     # newest first
-    assert body[0]["attempt_key"] == abandoned.attempt_key
+    assert body[0]["attempt_key"] == str(abandoned.attempt_key)
     assert body[0]["score_percent"] is None
     assert body[1]["score_percent"] is not None
 

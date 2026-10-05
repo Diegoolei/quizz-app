@@ -54,3 +54,123 @@ Append-only record of agent prompt/response exchanges.
 - user_prompt: "I prefer that each non related model has its own app, because then they will have their own services and helpers."
 - assistant_response_summary: "Split domain into users/quizzes/attempts/outbox apps with models + services/helpers packages; cleared api models; updated INSTALLED_APPS, factories, tests, 01-data-model ownership table; remigrated DB; test_data_model 3 passed."
 - files_affected: ".cursor/specs/01-data-model.md, .cursor/specs/08-test-catalog.md, config/settings/base.py, api/models.py, users/**, quizzes/**, attempts/**, outbox/**, api/tests/**"
+---
+- timestamp: "2026-10-05T01:24:00Z"
+- user_prompt: "Build (multitask parallel multi-agent plan)"
+- assistant_response_summary: "Wave 0 contracts marked done; launched parallel Wave 1 agents: users, quizzes, outbox, attempts. Wave 2/3 pending."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:25:12Z"
+- user_prompt: "You are Agent_outbox for quizz-app. Execute ONLY Wave 1 todos for outbox: wave1-outbox. Implement outbox.services.outbox_service + process_outbox management command; run outbox pytest files."
+- assistant_response_summary: "Implemented outbox.services.outbox_service (enqueue_attempt_completed, process_outbox with SKIP LOCKED + max retries 5 → exceeded_retries, MockEmailSender odd-fail/even-succeed, uniqueness_key attempt_completed:{id}, event_type quiz_attempt_completed) and management command process_outbox. Pytest: 1 passed, 3 failed due to missing attempts.services.scoring used by complete_attempt factory."
+- files_affected: "outbox/services/outbox_service.py, outbox/services/__init__.py, outbox/management/__init__.py, outbox/management/commands/__init__.py, outbox/management/commands/process_outbox.py"
+
+---
+- timestamp: "2026-10-05T01:25:30Z"
+- user_prompt: "You are Agent_users for quizz-app. Execute ONLY Wave 1 todos for users: wave1-users. Implement users.services.user_service with create_user/get_user + typed domain errors."
+- assistant_response_summary: "Implemented users.services.user_service (create_user, get_user) and typed errors ValidationError/EmailTaken/UserNotFound with code+details; re-exported from users.services. Smoke script + manage.py check passed via docker compose; no HTTP/full suite."
+- files_affected: "users/services/exceptions.py, users/services/user_service.py, users/services/__init__.py"
+---
+- timestamp: "2026-10-05T01:25:30Z"
+- user_prompt: "Perform any necessary follow-up actions in response to the subagent completion (outbox)"
+- assistant_response_summary: "Marked wave1-outbox complete. Recorded orchestrator decisions: one-shot process_outbox + in-process MockEmailSender counter; no payload validation in outbox; specs win over stale rule 31. Could not resume running orchestrator 73967836; will apply on next wake."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:25:33Z"
+- user_prompt: "You are Agent_quizzes for quizz-app. Execute ONLY Wave 1 todos for quizzes: wave1-quizzes. Implement quizzes.services create_quiz/list_quizzes/get_quiz_public + seed_quizzes command."
+- assistant_response_summary: "Implemented quizzes.services (create_quiz, list_quizzes, get_quiz_public) with ValidationError/QuizNotFound (code+details); seed_quizzes idempotent on stable titles (Intro to LLMs, Prompt Engineering Basics). pytest api/tests/test_seed_data.py: 1 passed."
+- files_affected: "quizzes/services/exceptions.py, quizzes/services/quiz_service.py, quizzes/services/__init__.py, quizzes/management/commands/seed_quizzes.py"
+---
+- timestamp: "2026-10-05T01:26:00Z"
+- user_prompt: "Follow-up after Agent users services completion"
+- assistant_response_summary: "Marked wave1-users complete. users.services create/get with typed errors ready for API envelope mapping. Orchestrator still running; resume deferred."
+- files_affected: "none"
+---
+- timestamp: "2026-10-05T01:26:30Z"
+- user_prompt: "Follow-up after Agent quizzes services completion"
+- assistant_response_summary: "Marked wave1-quizzes complete; seed_quizzes + quiz services landed; test_seed_data passed. Resume of orchestrator attempted."
+- files_affected: "none"
+---
+- timestamp: "2026-10-05T01:30:00Z"
+- user_prompt: "You are Agent_attempts for quizz-app… Execute ONLY Wave 1 todos for attempts: wave1-attempts."
+- assistant_response_summary: "Implemented attempts/services/scoring.py (score_percent, performance_message_for) and attempt_service.py (start_attempt, submit_answers with IncompleteAnswersError/AlreadyCompletedError + outbox enqueue, get_attempt, list_user_attempts, user_stats); focused pytest 18 passed."
+- files_affected: "attempts/services/__init__.py, attempts/services/scoring.py, attempts/services/exceptions.py, attempts/services/attempt_service.py"
+---
+- timestamp: "2026-10-05T01:27:00Z"
+- user_prompt: "Follow-up after Agent attempts services completion"
+- assistant_response_summary: "Wave 1 fully complete (attempts 18 passed). Decisions: str UUID in API; re-raise cross-app NotFound; specs win for in_progress GET 200. Wave2 marked in_progress; orchestrator still running so resume deferred."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:27:53Z"
+- user_prompt: "Orchestrator: complete ALL remaining plan work until success criteria (Wave 1 verify/finish, Wave 2 Agent_api, Wave 3 integrate)"
+- assistant_response_summary: "Finished Wave 1 gaps (quizzes quiz_service+seed_quizzes; attempts scoring/attempt_service; users/outbox already present). Implemented Wave 2 API (thin DRF views, error envelope, IP rate-limit middleware, drf-spectacular JSON schema, routes in config/urls). Wave 3: outbox-worker every 5s in docker-compose; full suite 80 passed."
+- files_affected: "attempts/services/*, quizzes/services/*, quizzes/management/commands/seed_quizzes.py, api/views.py, api/urls.py, api/exceptions.py, api/middleware/rate_limit.py, api/schema.py, api/tests/conftest.py, api/tests/helpers/factories.py, api/tests/http/test_user_progress.py, config/urls.py, config/settings/base.py, docker-compose.yml, pyproject.toml, uv.lock"
+---
+- timestamp: "2026-10-05T01:28:30Z"
+- user_prompt: "Orchestrator decided specs win over stale rules. If these files exist, update them to match current specs (do not invent new product behavior): 30-answer-key-isolation, 31-outbox-notifications, 10-service-layer. If a rule file does not exist, skip it."
+- assistant_response_summary: "Checked .cursor/rules on disk: only chat-history-log.mdc present. Skipped 30-answer-key-isolation.mdc, 31-outbox-notifications.mdc, and 10-service-layer.mdc (all absent; exit checks 30/31/10 = missing). No rule content rewritten. Stale prior versions known from transcripts (in_progress GET 409; create response omit key; outbox processing/processed/max 3; services only under api/services) but not recreated per skip-if-missing instruction."
+- files_affected: ".chat-history/log.md"
+
+---
+- timestamp: "2026-10-05T01:30:00Z"
+- user_prompt: "check if there were any changes in the contract, if so, give to me again the commands"
+- assistant_response_summary: "Verified .cursor/specs/http/*.md unchanged since prior curl set (same paths/bodies). Re-issued identical happy-path curl commands; noted API is now wired (unlike earlier 404 warning). Flagged stale rules 30/31 contradict specs but tests follow specs."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:32:00Z"
+- user_prompt: "Two fixes: 1) docker-compose outbox-worker must not use web entrypoint; clean process_outbox loop. 2) Log when email is sent (structlog) with attempt_id/uniqueness_key/user_email/quiz_title/score; log failures/retries. Update 05 spec. Append chat-history."
+- assistant_response_summary: "Fixed outbox-worker with entrypoint: [] + sh loop (process_outbox / sleep 5), depends_on db healthy. Added structlog email_sent / email_send_failed in outbox.services.outbox_service._process_one; updated 05 + catalog; D-WRK log tests 4 passed; recreated worker — no migrate/collectstatic."
+- files_affected: "docker-compose.yml, outbox/services/outbox_service.py, api/tests/test_outbox_worker.py, .cursor/specs/05-notifications-outbox.md, .cursor/specs/08-test-catalog.md, .chat-history/log.md"
+---
+- timestamp: "2026-10-05T01:34:00Z"
+- user_prompt: "terminal 26.txt:764-1023 — curl quizzes list OK, detail 404 on /api/quizzes//"
+- assistant_response_summary: "Diagnosed empty $QUIZ_ID (URL became /api/quizzes//); list already had ids 1 and 2; gave export QUIZ_ID=1 and curl retry."
+- files_affected: "none"
+---
+- timestamp: "2026-10-05T01:35:30Z"
+- user_prompt: "It shoud be handled, not exploding"
+- assistant_response_summary: "Delegated background agent to make empty-path quiz id (/api/quizzes//) return clean JSON per API conventions instead of Django HTML DEBUG 404; spec-first TDD."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:35:00Z"
+- user_prompt: "run the complete test suite"
+- assistant_response_summary: "Ran `uv run pytest -v`: collected 82 items from api/tests; all 82 passed in 2.36s (Django 6.1.1, config.settings.local)."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:36:00Z"
+- user_prompt: "quiz id 1 user id 1"
+- assistant_response_summary: "Filled remaining happy-path curls for USER_ID=1 QUIZ_ID=1 using live option map (Q1→opt1 correct, Q2→opt3 correct); start attempt → submit → results → progress."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:36:30Z"
+- user_prompt: "\"attempt_key\":\"bd10ed34-3217-495b-b278-34c90362492a\""
+- assistant_response_summary: "Filled remaining curls with ATTEMPT_KEY=bd10ed34-3217-495b-b278-34c90362492a for in-progress GET, submit answers (Q1→1, Q2→3), results GET, and user progress."
+- files_affected: "none"
+---
+- timestamp: "2026-10-05T01:37:00Z"
+- user_prompt: "It shoud be handled, not exploding"
+- assistant_response_summary: "Root cause: /api/quizzes// misses quizzes/<int:id>/ so Django DEBUG HTML 404 before DRF. Spec: unmatched /api/ → 404 JSON not_found (06, http/quizzes, catalog D-ENV-EMPTY-PATH). Added ApiJson404Middleware; test_empty_quiz_id_path_returns_json_not_found green; curl returns JSON."
+- files_affected: ".cursor/specs/06-api-conventions.md, .cursor/specs/http/quizzes.md, .cursor/specs/08-test-catalog.md, api/tests/test_api_conventions.py, api/middleware/json_404.py, config/settings/base.py, .chat-history/log.md"
+---
+- timestamp: "2026-10-05T01:37:00Z"
+- user_prompt: "Perform any necessary follow-up actions in response to the subagent completion above."
+- assistant_response_summary: "Spot-check found ApiJson404Middleware present but claimed specs/tests missing; delegated follow-up agent to audit and complete spec-first TDD gap."
+- files_affected: "none"
+
+---
+- timestamp: "2026-10-05T01:37:30Z"
+- user_prompt: "Follow-up: audit empty /api/quizzes// JSON 404 claim (specs/tests/middleware); complete missing via TDD; run pytest; curl; report to parent."
+- assistant_response_summary: "Audit: prior claim was correct — specs (06 Unmatched routes, http/quizzes not_found for empty id, catalog D-ENV-EMPTY-PATH), api/tests/test_api_conventions.py::test_empty_quiz_id_path_returns_json_not_found, ApiJson404Middleware + settings registration, and error_body all present. Parent gap was likely a race with mid-write files. No code changes. pytest api/tests/test_api_conventions.py: 3 passed. curl GET /api/quizzes// → 404 application/json {error.code=not_found}."
+- files_affected: ".chat-history/log.md"
+---
+- timestamp: "2026-10-05T01:38:00Z"
+- user_prompt: "Perform any necessary follow-up actions in response to the subagent completion above."
+- assistant_response_summary: "No further action: audit confirmed ApiJson404Middleware + specs + conventions tests present; pytest 3 passed; /api/quizzes// returns JSON not_found. Prior missing-files spot-check was a race."
+- files_affected: "none"
