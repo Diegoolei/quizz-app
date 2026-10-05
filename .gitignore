@@ -150,9 +150,10 @@ activemq-data/
 *.sage.py
 
 # Environments
-.env
+# .env is committed intentionally for local evaluation (see README).
 .envrc
 .venv
+staticfiles/
 env/
 venv/
 ENV/
